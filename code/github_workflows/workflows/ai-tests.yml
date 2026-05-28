@@ -1,0 +1,90 @@
+name: AI QA Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Запускать дорогие тесты ночью по UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  fast-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-html
+
+      - name: Запустить быстрые тесты без API calls
+        run: pytest tests/ -m "fast" -v --tb=short
+
+  llm-tests:
+    runs-on: ubuntu-latest
+    needs: fast-tests
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-html
+
+      - name: Запустить LLM tests
+        run: pytest tests/ -m "llm" -v --tb=short --html=reports/llm-tests.html
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: llm-test-report
+          path: reports/llm-tests.html
+
+  security-tests:
+    runs-on: ubuntu-latest
+    needs: fast-tests
+    if: github.event_name == 'schedule' || github.event_name == 'pull_request'
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-html
+
+      - name: Запустить security tests
+        run: pytest tests/ -m "security" -v --tb=short --html=reports/security-tests.html
+
+      - name: Upload security report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-test-report
+          path: reports/security-tests.html
