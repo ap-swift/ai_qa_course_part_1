@@ -22,8 +22,8 @@ class CourseLLMClient:
         self._client = get_llm_client()
         self.provider = self._client.provider_name
 
-    def chat(self, prompt: str, system: str = "You are a helpful AI QA assistant.") -> LLMResponse:
-        full_prompt = f"System instruction: {system}\n\nUser prompt: {prompt}" if system else prompt
+    def chat(self, prompt: str, system: str = "Вы полезный AI QA ассистент.") -> LLMResponse:
+        full_prompt = f"Системная инструкция: {system}\n\nПромпт пользователя: {prompt}" if system else prompt
         text = self._client.generate(full_prompt)
         return LLMResponse(
             text=text,
@@ -34,6 +34,6 @@ class CourseLLMClient:
 
 if __name__ == "__main__":
     client = CourseLLMClient()
-    response = client.chat("Return a short JSON status for an AI QA smoke test.")
+    response = client.chat("Верни короткий JSON-статус для smoke test AI QA.")
     print(f"provider={response.provider} model={response.model}")
     print(response.text)

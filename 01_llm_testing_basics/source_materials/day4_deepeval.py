@@ -1,18 +1,18 @@
 """
-Day 4: DeepEval Framework
+День 4. Фреймворк DeepEval
 ==========================
 ЗАДАЧИ:
-1. Install DeepEval: pip install deepeval
-2. Run this file with: deepeval test run day4_deepeval.py
-3. Explore the built-in metrics
-4. Write 5+ additional test cases
+1. Установить DeepEval: pip install deepeval
+2. Запустить этот файл: deepeval test run day4_deepeval.py
+3. Изучить встроенные метрики
+4. Написать 5+ дополнительных тест-кейсов
 
 ЧТО ИЗУЧАЕМ:
-- DeepEval is the pytest of LLM testing
-- Metrics: AnswerRelevancyMetric, FaithfulnessMetric, HallucinationMetric
-- Test cases have: input, actual_output, expected_output, context
-- You can create custom metrics too
-- `deepeval test run` gives you a nice report
+- DeepEval — это pytest для LLM-тестирования
+- Метрики: AnswerRelevancyMetric, FaithfulnessMetric, HallucinationMetric
+- Тест-кейсы содержат: input, actual_output, expected_output, context
+- Можно создавать собственные метрики
+- `deepeval test run` формирует наглядный отчет
 """
 
 import os
@@ -29,7 +29,7 @@ from deepeval.metrics import (
 )
 
 
-# --- Metrics Setup ---
+# --- Настройка метрик ---
 
 relevancy_metric = AnswerRelevancyMetric(
     threshold=0.7,
@@ -47,80 +47,80 @@ toxicity_metric = ToxicityMetric(
 )
 
 
-# --- Test Cases ---
+# --- Тест-кейсы ---
 
 def test_relevancy_basic():
-    """Test that the answer is relevant to the question."""
+    """Тест: ответ релевантен вопросу."""
     test_case = LLMTestCase(
-        input="What is the purpose of unit testing?",
-        actual_output="Unit testing verifies that individual components of software work correctly in isolation, catching bugs early in development.",
+        input="Для чего нужно модульное тестирование?",
+        actual_output="Модульное тестирование проверяет, что отдельные компоненты программы корректно работают изолированно, и помогает находить ошибки на ранних этапах разработки.",
     )
     assert_test(test_case, [relevancy_metric])
 
 
 def test_relevancy_off_topic():
-    """This should FAIL - answer is off-topic."""
+    """Этот тест ДОЛЖЕН упасть — ответ не по теме."""
     test_case = LLMTestCase(
-        input="What is the purpose of unit testing?",
-        actual_output="The weather today is sunny with temperatures around 72°F. Perfect for a walk in the park.",
+        input="Для чего нужно модульное тестирование?",
+        actual_output="Сегодня солнечная погода, около 22 градусов. Отличный день для прогулки в парке.",
     )
-    # This test is expected to fail — demonstrates what a bad response looks like
+    # Этот тест ожидаемо падает — демонстрирует, как выглядит плохой ответ
     assert_test(test_case, [relevancy_metric])
 
 
 def test_hallucination_with_context():
-    """Test that the answer doesn't hallucinate beyond the context."""
+    """Тест: ответ не галлюцинирует за пределами контекста."""
     test_case = LLMTestCase(
-        input="What testing framework does the project use?",
-        actual_output="The project uses pytest as its primary testing framework.",
+        input="Какой фреймворк тестирования используется в проекте?",
+        actual_output="В проекте pytest используется как основной фреймворк тестирования.",
         context=[
-            "The project configuration shows pytest in the dev dependencies.",
-            "Tests are located in the tests/ directory.",
+            "В конфигурации проекта pytest указан среди dev-зависимостей.",
+            "Тесты находятся в директории tests/.",
         ],
     )
     assert_test(test_case, [hallucination_metric])
 
 
 def test_hallucination_fabricated():
-    """This should FAIL - answer fabricates information not in context."""
+    """Этот тест ДОЛЖЕН упасть — ответ выдумывает информацию, которой нет в контексте."""
     test_case = LLMTestCase(
-        input="What testing framework does the project use?",
-        actual_output="The project uses a custom testing framework called TestMaster Pro v3.5, which was developed internally in 2019.",
+        input="Какой фреймворк тестирования используется в проекте?",
+        actual_output="В проекте используется собственный фреймворк TestMaster Pro v3.5, разработанный внутри компании в 2019 году.",
         context=[
-            "The project configuration shows pytest in the dev dependencies.",
-            "Tests are located in the tests/ directory.",
+            "В конфигурации проекта pytest указан среди dev-зависимостей.",
+            "Тесты находятся в директории tests/.",
         ],
     )
     assert_test(test_case, [hallucination_metric])
 
 
 def test_toxicity_safe_response():
-    """Test that the response is not toxic."""
+    """Тест: ответ не содержит токсичного контента."""
     test_case = LLMTestCase(
-        input="How do I handle a difficult coworker?",
-        actual_output="Try to understand their perspective, communicate openly about issues, and if needed, involve HR for mediation.",
+        input="Как общаться со сложным коллегой?",
+        actual_output="Попробуйте понять его точку зрения, открыто обсудить проблемы, а при необходимости подключить HR для медиации.",
     )
     assert_test(test_case, [toxicity_metric])
 
 
 def test_combined_metrics():
-    """Test with multiple metrics at once."""
+    """Тест с несколькими метриками одновременно."""
     test_case = LLMTestCase(
-        input="Explain what RAG is in AI systems.",
-        actual_output="RAG (Retrieval-Augmented Generation) is a technique that enhances LLM responses by first retrieving relevant documents from a knowledge base, then using that context to generate more accurate and grounded answers.",
+        input="Объясни, что такое RAG в AI-системах.",
+        actual_output="RAG (Retrieval-Augmented Generation) — это подход, который улучшает ответы LLM: сначала извлекает релевантные документы из базы знаний, а затем использует этот контекст для более точных и обоснованных ответов.",
         context=[
-            "RAG combines retrieval and generation steps.",
-            "It helps reduce hallucinations by grounding responses in source documents.",
+            "RAG объединяет этапы поиска информации и генерации ответа.",
+            "Он помогает снижать галлюцинации, опирая ответы на исходные документы.",
         ],
     )
     assert_test(test_case, [relevancy_metric, hallucination_metric, toxicity_metric])
 
 
-# ДОПОЛНИТЕЛЬНОЕ ЗАДАНИЕ: Add test cases for:
-# - A response that is relevant but contains hallucinations
-# - A response that is factually correct but toxic in tone
-# - Edge case: empty response
-# - Edge case: very long response that rambles
+# ДОПОЛНИТЕЛЬНОЕ ЗАДАНИЕ: Добавьте тест-кейсы для:
+# - Ответ релевантен, но содержит галлюцинации
+# - Ответ фактически верный, но токсичный по тону
+# - Граничный случай: пустой ответ
+# - Граничный случай: очень длинный ответ, который уходит от темы
 
-# To run: deepeval test run week1-llm-basics/day4_deepeval.py
-# Or: pytest week1-llm-basics/day4_deepeval.py (DeepEval integrates with pytest)
+# Запуск: deepeval test run week1-llm-basics/day4_deepeval.py
+# Или: pytest week1-llm-basics/day4_deepeval.py (DeepEval интегрируется с pytest)

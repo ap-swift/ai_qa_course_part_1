@@ -1,20 +1,20 @@
 """
-Day 6: AI Error Types + Evaluation Metrics
-============================================
+День 6. Типы ошибок AI и метрики оценки
+=========================================
 ЗАДАЧИ:
-1. Implement 3 custom metrics: BLEU-like, keyword overlap, semantic similarity
-2. Compare your metrics with DeepEval's built-in metrics
-3. Run both on the same test data
-4. Analyze: when do they agree vs disagree?
+1. Реализовать 3 метрики: BLEU-подобную, пересечение ключевых слов, семантическое сходство
+2. Сравнить ваши метрики со встроенными метриками DeepEval
+3. Запустить обе группы на одних и тех же тестовых данных
+4. Проанализировать: когда метрики совпадают, а когда расходятся?
 
 ЧТО ИЗУЧАЕМ:
-- BLEU: n-gram overlap between expected and actual (used in translation)
-- ROUGE: recall-oriented, how much of reference is captured
-- Cosine similarity: semantic closeness via embeddings
-- Exact match: binary — either matches or doesn't
-- Faithfulness: does the answer stick to provided context?
-- Answer relevancy: does the answer address the question?
-- Each metric has trade-offs: speed vs accuracy vs cost
+- BLEU: пересечение n-грамм между ожидаемым и фактическим ответом (используется в переводе)
+- ROUGE: ориентирован на recall — сколько из референса покрыто
+- Cosine similarity: семантическая близость через эмбеддинги
+- Exact match: бинарная проверка — совпадает или нет
+- Faithfulness: придерживается ли ответ предоставленного контекста?
+- Answer relevancy: отвечает ли ответ на заданный вопрос?
+- У каждой метрики свои компромиссы: скорость vs точность vs стоимость
 """
 
 import os
@@ -28,12 +28,12 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-# --- Custom Metrics Implementation ---
+# --- Реализация метрик ---
 
 def bleu_score(reference: str, candidate: str, n: int = 1) -> float:
     """
-    Simplified BLEU score (unigram precision).
-    Measures: how many words in candidate appear in reference.
+    Упрощённый BLEU score (unigram precision).
+    Измеряет: какая доля слов candidate присутствует в reference.
     """
     ref_tokens = reference.lower().split()
     cand_tokens = candidate.lower().split()
@@ -52,8 +52,8 @@ def bleu_score(reference: str, candidate: str, n: int = 1) -> float:
 
 def rouge_l_score(reference: str, candidate: str) -> float:
     """
-    Simplified ROUGE-L (Longest Common Subsequence based).
-    Measures: how much of the reference is captured in candidate.
+    Упрощённый ROUGE-L (на основе наибольшей общей подпоследовательности).
+    Измеряет: какая часть reference покрыта в candidate.
     """
     ref_tokens = reference.lower().split()
     cand_tokens = candidate.lower().split()
@@ -61,7 +61,6 @@ def rouge_l_score(reference: str, candidate: str) -> float:
     if not ref_tokens or not cand_tokens:
         return 0.0
 
-    # LCS using dynamic programming
     m, n = len(ref_tokens), len(cand_tokens)
     dp = [[0] * (n + 1) for _ in range(m + 1)]
     for i in range(1, m + 1):
@@ -82,8 +81,8 @@ def rouge_l_score(reference: str, candidate: str) -> float:
 
 def cosine_similarity_score(text1: str, text2: str) -> float:
     """
-    Semantic similarity using OpenAI embeddings.
-    This measures meaning, not just word overlap.
+    Семантическое сходство через эмбеддинги OpenAI.
+    Измеряет смысловую близость, а не просто пересечение слов.
     """
     response = client.embeddings.create(
         model="text-embedding-3-small",
@@ -102,7 +101,7 @@ def cosine_similarity_score(text1: str, text2: str) -> float:
 
 
 def keyword_overlap_score(reference: str, candidate: str) -> float:
-    """Simple Jaccard similarity of unique words."""
+    """Простое сходство Жаккара по уникальным словам."""
     ref_words = set(reference.lower().split())
     cand_words = set(candidate.lower().split())
     if not ref_words or not cand_words:
@@ -112,47 +111,47 @@ def keyword_overlap_score(reference: str, candidate: str) -> float:
     return len(intersection) / len(union)
 
 
-# --- Test Data ---
+# --- Тестовые данные ---
 
 TEST_PAIRS = [
     {
         "name": "good_answer",
-        "question": "What is unit testing?",
-        "reference": "Unit testing is a software testing method where individual units or components are tested in isolation to verify they work correctly.",
-        "candidate": "Unit testing is testing individual components of software in isolation to ensure they function correctly.",
+        "question": "Что такое модульное тестирование?",
+        "reference": "Модульное тестирование — это метод тестирования ПО, при котором отдельные модули или компоненты проверяются изолированно, чтобы убедиться, что они работают корректно.",
+        "candidate": "Модульное тестирование проверяет отдельные компоненты программы изолированно, чтобы убедиться в их корректной работе.",
     },
     {
         "name": "partial_answer",
-        "question": "What is unit testing?",
-        "reference": "Unit testing is a software testing method where individual units or components are tested in isolation to verify they work correctly.",
-        "candidate": "Testing is important for software quality. There are many types of tests you can write.",
+        "question": "Что такое модульное тестирование?",
+        "reference": "Модульное тестирование — это метод тестирования ПО, при котором отдельные модули или компоненты проверяются изолированно, чтобы убедиться, что они работают корректно.",
+        "candidate": "Тестирование важно для качества ПО. Есть много разных видов тестов, которые можно писать.",
     },
     {
         "name": "hallucinated_answer",
-        "question": "What is unit testing?",
-        "reference": "Unit testing is a software testing method where individual units or components are tested in isolation to verify they work correctly.",
-        "candidate": "Unit testing was invented by Kent Beck in 1847 as part of the Industrial Revolution to test steam engines.",
+        "question": "Что такое модульное тестирование?",
+        "reference": "Модульное тестирование — это метод тестирования ПО, при котором отдельные модули или компоненты проверяются изолированно, чтобы убедиться, что они работают корректно.",
+        "candidate": "Модульное тестирование придумал Кент Бек в 1847 году во время промышленной революции для проверки паровых двигателей.",
     },
     {
         "name": "off_topic",
-        "question": "What is unit testing?",
-        "reference": "Unit testing is a software testing method where individual units or components are tested in isolation to verify they work correctly.",
-        "candidate": "The weather in Paris today is sunny with a high of 22 degrees Celsius.",
+        "question": "Что такое модульное тестирование?",
+        "reference": "Модульное тестирование — это метод тестирования ПО, при котором отдельные модули или компоненты проверяются изолированно, чтобы убедиться, что они работают корректно.",
+        "candidate": "Сегодня в Париже солнечная погода, температура поднимается до 22 градусов.",
     },
     {
         "name": "verbose_but_correct",
-        "question": "What is unit testing?",
-        "reference": "Unit testing is a software testing method where individual units or components are tested in isolation to verify they work correctly.",
-        "candidate": "Well, unit testing, you see, is essentially a methodology in software engineering where developers write small, focused tests that verify the behavior of individual units—typically functions or methods—in complete isolation from the rest of the system, ensuring correctness at the most granular level.",
+        "question": "Что такое модульное тестирование?",
+        "reference": "Модульное тестирование — это метод тестирования ПО, при котором отдельные модули или компоненты проверяются изолированно, чтобы убедиться, что они работают корректно.",
+        "candidate": "Модульное тестирование, по сути, является методикой разработки ПО, при которой разработчики пишут небольшие сфокусированные тесты для проверки поведения отдельных единиц кода — обычно функций или методов — в полной изоляции от остальной системы, чтобы убедиться в корректности на самом детальном уровне.",
     },
 ]
 
 
 def evaluate_all_metrics(test_pairs: list[dict]) -> list[dict]:
-    """Запустить все metrics на test pairs и сравнить."""
+    """Запустить все метрики на тестовых парах и сравнить."""
     results = []
     for pair in test_pairs:
-        print(f"  Evaluating: {pair['name']}...")
+        print(f"  Оценка: {pair['name']}...")
         result = {
             "name": pair["name"],
             "bleu_1": round(bleu_score(pair["reference"], pair["candidate"]), 3),
@@ -165,31 +164,30 @@ def evaluate_all_metrics(test_pairs: list[dict]) -> list[dict]:
 
 
 if __name__ == "__main__":
-    print("=== Day 6: Custom Metrics Evaluation ===\n")
+    print("=== День 6: Оценка метриками ===\n")
 
     results = evaluate_all_metrics(TEST_PAIRS)
 
-    # Display results as table
-    print(f"\n{'Name':<22} {'BLEU-1':<8} {'ROUGE-L':<9} {'Cosine':<8} {'Keyword':<8}")
+    print(f"\n{'Название':<22} {'BLEU-1':<8} {'ROUGE-L':<9} {'Cosine':<8} {'Keyword':<8}")
     print("-" * 58)
     for r in results:
         print(f"{r['name']:<22} {r['bleu_1']:<8} {r['rouge_l']:<9} {r['cosine_sim']:<8} {r['keyword_overlap']:<8}")
 
-    # Analysis
-    print("\n=== ANALYSIS ===")
-    print("- BLEU: Measures word precision (are candidate words in reference?)")
-    print("- ROUGE-L: Measures recall via longest common subsequence")
-    print("- Cosine: Measures semantic meaning (expensive but smart)")
-    print("- Keyword: Simple set overlap (fast but naive)")
-    print("\nNotice how 'hallucinated_answer' might score OK on word overlap")
-    print("but poorly on semantic similarity — that's why we need multiple metrics!")
+    # Анализ
+    print("\n=== АНАЛИЗ ===")
+    print("- BLEU: Измеряет precision по словам (есть ли слова candidate в reference?)")
+    print("- ROUGE-L: Измеряет recall через наибольшую общую подпоследовательность")
+    print("- Cosine: Измеряет семантический смысл (дорого, но точно)")
+    print("- Keyword: Простое пересечение множеств (быстро, но наивно)")
+    print("\nОбратите внимание: 'hallucinated_answer' может получить ОК по пересечению слов,")
+    print("но плохо по семантическому сходству — поэтому нужно несколько метрик!")
 
-    # Save results
+    # Сохранение результатов
     os.makedirs("week1-llm-basics/outputs", exist_ok=True)
     with open("week1-llm-basics/outputs/day6_metrics_results.json", "w") as f:
         json.dump(results, f, indent=2)
 
     # ДОПОЛНИТЕЛЬНОЕ ЗАДАНИЕ:
-    # 1. Add BLEU-2 (bigram) metric
-    # 2. Compare results: which metric is best at catching hallucinations?
-    # 3. Run DeepEval's HallucinationMetric on the same data and compare
+    # 1. Добавить метрику BLEU-2 (биграммы)
+    # 2. Сравнить результаты: какая метрика лучше всего ловит галлюцинации?
+    # 3. Запустить HallucinationMetric из DeepEval на тех же данных и сравнить

@@ -33,7 +33,7 @@ final_project/                    — финальный проект
 ## Быстрый старт
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/ap-swift/ai_qa_course_part_1.git
 cd stepik_course_package
 python3 -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate

@@ -32,7 +32,7 @@ def get_json_response(prompt: str) -> dict:
     """Получить и распарсить JSON-ответ выбранного provider."""
     client = get_llm_client()
     raw_response = client.generate(
-        f"Return only valid JSON with fields score, reasoning, status and provider. User task: {prompt}"
+        f"Верни только валидный JSON с полями score, reasoning, status и provider. Задача пользователя: {prompt}"
     )
     return json.loads(raw_response)
 
@@ -45,7 +45,7 @@ def validate_evaluation(prompt: str) -> TestCaseEvaluation:
 
 if __name__ == "__main__":
     try:
-        result = validate_evaluation("Check whether a chatbot answer follows the expected format.")
+        result = validate_evaluation("Проверь, соответствует ли ответ чат-бота ожидаемому формату.")
         print(result.model_dump())
     except (json.JSONDecodeError, ValidationError) as exc:
         print("Structured output validation завершилась ошибкой.")

@@ -45,7 +45,7 @@ def compare_repeated_runs(prompt: str, runs: int = 3) -> None:
 
 if __name__ == "__main__":
     print("=== ЗАДАЧА 1: smoke request через provider ===")
-    print(basic_request("What is software testing in one sentence?"))
+    print(basic_request("Что такое тестирование ПО? Ответь одним предложением."))
 
     print("\n=== ЗАДАЧА 2: проверка стабильности ===")
-    compare_repeated_runs("Invent a concise name for a startup that tests AI systems.")
+    compare_repeated_runs("Придумай короткое название для стартапа, который тестирует AI-системы.")

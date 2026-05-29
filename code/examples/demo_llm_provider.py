@@ -13,7 +13,7 @@ from llm_clients.factory import get_llm_client
 
 if __name__ == "__main__":
     client = get_llm_client()
-    response = client.generate("Return a short JSON status for an AI QA smoke test.")
+    response = client.generate("Верни короткий JSON-статус для smoke test AI QA.")
     print(f"Provider: {client.provider_name}")
     print(f"Model: {getattr(client, 'model_name', 'unknown')}")
     print(f"Response: {response}")

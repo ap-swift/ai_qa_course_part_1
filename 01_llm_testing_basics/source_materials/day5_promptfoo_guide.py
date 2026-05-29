@@ -1,22 +1,22 @@
 """
-Day 5: Promptfoo — Быстрый старт Guide (companion script)
-========================================================
-This script shows how to run promptfoo programmatically from Python
-and how to integrate it into your workflow.
+День 5. Promptfoo — Быстрый старт (companion-скрипт)
+=====================================================
+Этот скрипт показывает, как запускать promptfoo программно из Python
+и как интегрировать его в ваш рабочий процесс.
 
-SETUP:
+УСТАНОВКА:
   npm install -g promptfoo
-  OR
+  ИЛИ
   npx promptfoo@latest eval -c week1-llm-basics/day5_promptfoo.yaml
 
-VIEW RESULTS:
+ПРОСМОТР РЕЗУЛЬТАТОВ:
   npx promptfoo view
 
 ЗАДАЧИ:
-1. Run the YAML config and review the web UI
-2. Modify a prompt (v1 vs v2) and see which test cases break
-3. Add a new provider (e.g., openai:gpt-4o) to compare models
-4. Export results: npx promptfoo eval --output results.json
+1. Запустить YAML-конфигурацию и изучить веб-интерфейс
+2. Изменить prompt (v1 vs v2) и проверить, какие тест-кейсы сломались
+3. Добавить нового провайдера (например, openai:gpt-4o) для сравнения моделей
+4. Экспортировать результаты: npx promptfoo eval --output results.json
 """
 
 import subprocess
@@ -25,7 +25,7 @@ import os
 
 
 def run_promptfoo_eval(config_path: str = "week1-llm-basics/day5_promptfoo.yaml"):
-    """Run promptfoo evaluation and return results."""
+    """Запустить promptfoo evaluation и вернуть результаты."""
     output_path = "week1-llm-basics/outputs/day5_promptfoo_results.json"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
@@ -34,11 +34,11 @@ def run_promptfoo_eval(config_path: str = "week1-llm-basics/day5_promptfoo.yaml"
         "-c", config_path,
         "--output", output_path,
     ]
-    print(f"Running: {' '.join(cmd)}")
+    print(f"Запуск: {' '.join(cmd)}")
     result = subprocess.run(cmd, capture_output=True, text=True)
 
     if result.returncode != 0:
-        print(f"Error: {result.stderr}")
+        print(f"Ошибка: {result.stderr}")
         return None
 
     print(result.stdout)
@@ -49,12 +49,12 @@ def run_promptfoo_eval(config_path: str = "week1-llm-basics/day5_promptfoo.yaml"
 
 
 def analyze_results(results: dict):
-    """Analyze promptfoo results and highlight failures."""
+    """Проанализировать результаты promptfoo и выделить провалы."""
     if not results:
-        print("No results to analyze.")
+        print("Нет результатов для анализа.")
         return
 
-    print("\n=== PROMPTFOO RESULTS ANALYSIS ===")
+    print("\n=== АНАЛИЗ РЕЗУЛЬТАТОВ PROMPTFOO ===")
     total = 0
     passed = 0
     failed_cases = []
@@ -69,9 +69,9 @@ def analyze_results(results: dict):
                 "failures": [a.get("reason", "unknown") for a in result.get("assertionResults", []) if not a.get("pass")],
             })
 
-    print(f"Total: {total} | Passed: {passed} | Failed: {total - passed}")
+    print(f"Всего: {total} | Пройдено: {passed} | Провалено: {total - passed}")
     if failed_cases:
-        print("\nFailed cases:")
+        print("\nПровалившиеся кейсы:")
         for fc in failed_cases:
             print(f"  - {fc['prompt']}")
             for reason in fc["failures"]:
@@ -79,12 +79,12 @@ def analyze_results(results: dict):
 
 
 if __name__ == "__main__":
-    print("=== Day 5: Promptfoo Evaluation ===")
-    print("\nTo run the evaluation:")
+    print("=== День 5: Promptfoo Evaluation ===")
+    print("\nДля запуска evaluation:")
     print("  npx promptfoo eval -c week1-llm-basics/day5_promptfoo.yaml")
-    print("\nTo view results in browser:")
+    print("\nДля просмотра результатов в браузере:")
     print("  npx promptfoo view")
-    print("\nTo run programmatically (requires npx in PATH):")
+    print("\nДля программного запуска (нужен npx в PATH):")
 
     results = run_promptfoo_eval()
     if results:

@@ -11,7 +11,7 @@ from llm_clients.factory import get_llm_client
 def main() -> None:
     try:
         client = get_llm_client()
-        response = client.generate("What is the capital of France? Answer in one short sentence.")
+        response = client.generate("Какая столица Франции? Ответь одним коротким предложением.")
     except NotImplementedError as exc:
         print("Provider настроен, но не реализован в шаблоне курса.")
         print(str(exc))
