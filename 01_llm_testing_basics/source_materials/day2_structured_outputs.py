@@ -11,6 +11,7 @@
 import json
 from pathlib import Path
 import sys
+from typing import Optional
 
 from pydantic import BaseModel, ValidationError
 
@@ -24,8 +25,8 @@ class TestCaseEvaluation(BaseModel):
 
     score: float
     reasoning: str
-    status: str | None = None
-    provider: str | None = None
+    status: Optional[str] = None
+    provider: Optional[str] = None
 
 
 def get_json_response(prompt: str) -> dict:

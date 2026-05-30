@@ -11,6 +11,8 @@
 логику evaluator. Позже переключитесь на Ollama или другой provider и сравните результаты.
 """
 
+from __future__ import annotations
+
 import json
 import os
 import re

@@ -1,5 +1,7 @@
 """Compatibility-wrapper вокруг provider-agnostic пакета llm_clients."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Any
 
